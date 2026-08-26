@@ -603,7 +603,7 @@
     const player = players.find(p => p.id === playerId);
     if (!player) return;
 
-    const price = player.rc > 0 ? player.rc : player.value;
+    const price = (player.rc > 0 ? player.rc : player.value) * 1000000000;
     if (teamData.budget < price) {
       showToast("error", "Nepakanka lėšų", `Reikia ${price} mln. €, bet liko ${teamData.budget} mln. €.`);
       return;
@@ -643,7 +643,7 @@
     const player = players.find(p => p.id === playerId);
     if (!player) return;
 
-    const sellPrice = player.value;
+    const sellPrice = player.value * 1000000000;
     teamData.budget += sellPrice;
     teamData.spent -= sellPrice;
     teamData.players = teamData.players.filter(id => id !== playerId);
