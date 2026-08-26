@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KFL Skelbimų Centras + Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script>
+  (function () {
+    try {
+      if (localStorage.getItem("kfl_access_v2") === "granted") {
+        document.documentElement.classList.add("kfl-unlocked");
+      }
+    } catch (e) {}
+  })();
+</script>
+
+<!-- PRIEIGOS UŽSKLANDA -->
+<div class="gate-overlay" id="gateOverlay">
+  <div class="gate-card" id="gateCard">
+    <div class="gate-crest"><span class="gate-crest__mark">K</span></div>
+    <div class="gate-content" id="gateContent">
+      <h2>Prieigos kodas</h2>
+      <p>Įveskite kodą, kad patektumėte į sistemą.</p>
+      <form id="gateForm" class="gate-form" novalidate autocomplete="off">
+        <input type="text" id="gateInput" class="gate-input" placeholder="• • • • •" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12">
+        <button type="submit" class="btn btn--primary gate-submit"><span>Įeiti</span></button>
+      </form>
+      <p class="gate-error" id="gateError" hidden>Neteisingas kodas. Bandykite dar kartą.</p>
+    </div>
+
+    <div class="gate-coach" id="gateCoach" hidden>
+      <h2>Komandos pavadinimas</h2>
+      <p>Įveskite savo komandos pavadinimą.</p>
+      <form id="coachForm" class="gate-form" novalidate>
+        <input type="text" id="coachTeamName" class="gate-input" placeholder="Komandos pavadinimas" autocomplete="off">
+        <button type="submit" class="btn btn--primary gate-submit"><span>Išsaugoti</span></button>
+      </form>
+      <p class="gate-error" id="coachError" hidden>Įveskite komandos pavadinimą.</p>
+    </div>
+
+    <div class="gate-success" id="gateSuccess" hidden>
+      <div class="gate-success__ring"></div>
+      <div class="gate-success__ring gate-success__ring--2"></div>
+      <span class="gate-success__icon">✓</span>
+      <p id="gateSuccessText">Prieiga suteikta</p>
+    </div>
+  </div>
+</div>
+
+<div class="pitch-lines" aria-hidden="true"></div>
+
+<!-- PAGRINDINIS TURINYS -->
+<div class="app" id="appRoot">
+  <header class="header">
+    <div class="header__brand">
+      <div class="crest"><span class="crest__mark">K</span></div>
+      <div class="header__text">
+        <h1>KFL <span>Sistema</span></h1>
+        <p id="headerSubtitle">Klasės Futbolo Lyga · Valdymas</p>
+      </div>
+    </div>
+    <div class="header__user" id="headerUser"></div>
+  </header>
+
+  <nav class="main-nav">
+    <button class="nav-btn is-active" data-section="announcements" id="navAnnouncements">📢 Pranešimai</button>
+    <button class="nav-btn" data-section="schedule" id="navSchedule">🗓️ Tvarkaraštis</button>
+    <button class="nav-btn" data-section="results" id="navResults">🏆 Rezultatai</button>
+    <button class="nav-btn nav-btn--manager" data-section="manager" id="navManager">⚽ KFL Manager</button>
+  </nav>
+
+  <main class="layout">
+    <!-- SKELBIMŲ CENTRAS -->
+    <section class="panel panel--form" id="sectionAnnouncements">
+      <div class="card">
+        <div class="card__head">
+          <span class="card__eyebrow">01 · Turinys</span>
+          <h2>Pranešimo turinys</h2>
+        </div>
+        <form id="announcementForm" class="form" novalidate>
+          <div class="field">
+            <label for="annTitle">Antraštė</label>
+            <input type="text" id="annTitle" placeholder="Pvz. Naujas sezonas prasideda!" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="annContent">Žinutės tekstas</label>
+            <textarea id="annContent" rows="6" placeholder="Parašykite pranešimo turinį..."></textarea>
+          </div>
+          <div class="field">
+            <label for="annEmoji">Emoji <span class="field__hint">(neprivaloma)</span></label>
+            <input type="text" id="annEmoji" placeholder="⚽" maxlength="4" autocomplete="off">
+          </div>
+          <button type="submit" class="btn btn--primary">Siųsti į Discord</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel panel--form" id="sectionSchedule" hidden>
+      <div class="card">
+        <div class="card__head">
+          <span class="card__eyebrow">01 · Turinys</span>
+          <h2>Tvarkaraščio informacija</h2>
+        </div>
+        <form id="scheduleForm" class="form" novalidate>
+          <div class="field">
+            <label for="scheduleText">Aprašymas / tvarkaraštis</label>
+            <textarea id="scheduleText" rows="10" placeholder="Įrašykite visą tvarkaraštį arba informaciją..."></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary">Siųsti į Discord</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel panel--form" id="sectionResults" hidden>
+      <div class="card">
+        <div class="card__head">
+          <span class="card__eyebrow">01 · Turinys</span>
+          <h2>Rungtynių rezultatas</h2>
+        </div>
+        <form id="resultsForm" class="form" novalidate>
+          <div class="field-row">
+            <div class="field">
+              <label for="resTeamA">Komanda A</label>
+              <input type="text" id="resTeamA" list="teamsList" placeholder="Komanda A" autocomplete="off">
+            </div>
+            <div class="field field--score">
+              <label for="resScoreA">Įvarčiai</label>
+              <input type="number" id="resScoreA" min="0" max="99" placeholder="0">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="resTeamB">Komanda B</label>
+              <input type="text" id="resTeamB" list="teamsList" placeholder="Komanda B" autocomplete="off">
+            </div>
+            <div class="field field--score">
+              <label for="resScoreB">Įvarčiai</label>
+              <input type="number" id="resScoreB" min="0" max="99" placeholder="0">
+            </div>
+          </div>
+          <datalist id="teamsList"></datalist>
+          <button type="submit" class="btn btn--primary">Siųsti į Discord</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- KFL MANAGER -->
+    <section class="panel panel--manager" id="sectionManager" hidden>
+      <div class="manager-header">
+        <h2>⚽ KFL MANAGER</h2>
+        <div class="budget-box" id="budgetBox">
+          <div><span>Biudžetas:</span> <strong id="budgetTotal">150,000,000 €</strong></div>
+          <div><span>Išleista:</span> <strong id="budgetSpent">0 €</strong></div>
+          <div><span>Liko:</span> <strong id="budgetLeft">150,000,000 €</strong></div>
+        </div>
+      </div>
+
+      <div class="manager-columns">
+        <!-- MY TEAM -->
+        <div class="card team-card">
+          <div class="card__head">
+            <span class="card__eyebrow">My Team</span>
+            <h2 id="myTeamTitle">Mano komanda</h2>
+          </div>
+          <div id="myTeamList" class="player-list"></div>
+        </div>
+
+        <!-- TRANSFER MARKET -->
+        <div class="card market-card">
+          <div class="card__head">
+            <span class="card__eyebrow">Transfer Market</span>
+            <h2>Žaidėjų rinka</h2>
+          </div>
+          <div id="marketList" class="player-list"></div>
+        </div>
+      </div>
+
+      <!-- ADMIN VALDYMAS -->
+      <div class="card admin-panel" id="adminPanel" hidden>
+        <div class="card__head">
+          <span class="card__eyebrow">Admin</span>
+          <h2>Žaidėjų valdymas</h2>
+        </div>
+        <div id="adminPlayerList" class="admin-player-list"></div>
+      </div>
+
+      <!-- TRANSFER HISTORY -->
+      <div class="card history-card">
+        <div class="card__head">
+          <span class="card__eyebrow">Istorija</span>
+          <h2>Transferų istorija</h2>
+        </div>
+        <div id="transferHistory" class="transfer-history"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>KFL Sistema — duomenys saugomi lokaliai naršyklėje.</p>
+  </footer>
+</div>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
